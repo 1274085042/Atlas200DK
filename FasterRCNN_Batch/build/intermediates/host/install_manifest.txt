@@ -1,0 +1,3 @@
+/home/lfq/AscendProjects/sample-objectdetection/build/intermediates/host/../../../run/out/main
+/home/lfq/AscendProjects/sample-objectdetection/build/intermediates/host/../../../run/out/libHost.so
+/home/lfq/AscendProjects/sample-objectdetection/build/intermediates/host/../../../run/out/run_object_detection_faster_rcnn.py

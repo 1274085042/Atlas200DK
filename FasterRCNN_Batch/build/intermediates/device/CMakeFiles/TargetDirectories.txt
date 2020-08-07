@@ -1,0 +1,7 @@
+/home/lfq/AscendProjects/sample-objectdetection/build/intermediates/device/CMakeFiles/install/strip.dir
+/home/lfq/AscendProjects/sample-objectdetection/build/intermediates/device/CMakeFiles/edit_cache.dir
+/home/lfq/AscendProjects/sample-objectdetection/build/intermediates/device/CMakeFiles/Device.dir
+/home/lfq/AscendProjects/sample-objectdetection/build/intermediates/device/CMakeFiles/rebuild_cache.dir
+/home/lfq/AscendProjects/sample-objectdetection/build/intermediates/device/CMakeFiles/list_install_components.dir
+/home/lfq/AscendProjects/sample-objectdetection/build/intermediates/device/CMakeFiles/install/local.dir
+/home/lfq/AscendProjects/sample-objectdetection/build/intermediates/device/CMakeFiles/install.dir

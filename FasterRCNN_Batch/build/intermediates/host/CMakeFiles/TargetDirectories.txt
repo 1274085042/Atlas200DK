@@ -1,0 +1,8 @@
+/home/lfq/AscendProjects/sample-objectdetection/build/intermediates/host/CMakeFiles/install/strip.dir
+/home/lfq/AscendProjects/sample-objectdetection/build/intermediates/host/CMakeFiles/install/local.dir
+/home/lfq/AscendProjects/sample-objectdetection/build/intermediates/host/CMakeFiles/Host.dir
+/home/lfq/AscendProjects/sample-objectdetection/build/intermediates/host/CMakeFiles/main.dir
+/home/lfq/AscendProjects/sample-objectdetection/build/intermediates/host/CMakeFiles/edit_cache.dir
+/home/lfq/AscendProjects/sample-objectdetection/build/intermediates/host/CMakeFiles/rebuild_cache.dir
+/home/lfq/AscendProjects/sample-objectdetection/build/intermediates/host/CMakeFiles/list_install_components.dir
+/home/lfq/AscendProjects/sample-objectdetection/build/intermediates/host/CMakeFiles/install.dir
