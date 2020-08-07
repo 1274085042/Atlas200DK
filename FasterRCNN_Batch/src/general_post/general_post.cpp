@@ -1,38 +1,4 @@
-/**
- * ============================================================================
- *
- * Copyright (C) 2018, Hisilicon Technologies Co., Ltd. All Rights Reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
- *
- *   1 Redistributions of source code must retain the above copyright notice,
- *     this list of conditions and the following disclaimer.
- *
- *   2 Redistributions in binary form must reproduce the above copyright notice,
- *     this list of conditions and the following disclaimer in the documentation
- *     and/or other materials provided with the distribution.
- *
- *   3 Neither the names of the copyright holders nor the names of the
- *   contributors may be used to endorse or promote products derived from this
- *   software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
- * ============================================================================
- */
-
 #include "general_post.h"
-
 #include <iostream>
 #include <unistd.h>
 #include <algorithm>
@@ -110,7 +76,7 @@ HIAI_StatusT GeneralPost::Init( const hiai::AIConfig &config, const vector<hiai:
 
 bool GeneralPost::SendSentinel() 
 {
-cout<<"[LOG] Start SendSentinel:"<<endl;
+  cout<<"[LOG] Start SendSentinel:"<<endl;
   // can not discard when queue full
   HIAI_StatusT hiai_ret = HIAI_OK;
   shared_ptr<string> sentinel_msg(new (nothrow) string);
@@ -150,7 +116,7 @@ HIAI_StatusT GeneralPost::HandleResults( const std::shared_ptr<EngineTransT>& in
     cout<<"[LOG] num_buffer size:"<<output_data_vec[kOutputNumIndex].size<<endl;
     cout<<"[LOG] bbox_buffer size:"<<output_data_vec[kOutputTesnorIndex].size<<endl;
 
-    Tensor<uint32_t> tensor_num;
+    Tensor<uint32_t> tensor_num;     //每个类有几个bbox
     Tensor<float> tensor_bbox;
 
 
@@ -171,53 +137,29 @@ HIAI_StatusT GeneralPost::HandleResults( const std::shared_ptr<EngineTransT>& in
 
       cout<<"[LOG] tensor_num.Size:"<<tensor_num.Size()<<endl;
       cout<<"[LOG] tensor_bbox.Size:"<<tensor_bbox.Size()<<endl;
-/*
-    for (uint32_t i=0;i<tensor_num.Size();i++)
-      {
-      cout<<"tensor num "<<i<<": "<<tensor_num[i]<<endl;
-      }
 
-      for (uint32_t i=0;i<tensor_bbox.Size();i++)
-      {
-      cout<<"tensor_bbox "<<i<<": "<<tensor_bbox[i]<<endl;
-      }
-*/
   for (uint32_t ind = 0; ind < inference_res->b_info.batch_size; ind++)
 {
     vector<BoundingBox> bboxes;
     cout<<"[LOG] Detected: "<<ind<<" picture."<<endl;
     for (uint32_t attr = 0; attr < inference_res->console_params.output_nums; ++attr)
     {
+      /*
+      一张图片最多可以有32个类，4张图片就有128各类，
+      box_ind代表某张图片第attr个类的下表索引。
+      */
        uint32_t box_ind=ind*kDimBBoxCnt[1]+attr;
-       //cdcout<<" box_ind="<< box_ind<<endl;
+      
       for (uint32_t bbox_idx = 0; bbox_idx < tensor_num[ box_ind]; ++bbox_idx)
       {
-      /*
-      cout<<"attr="<<attr<<endl;
-      cout<<"box_ind="<<box_ind<<endl;
-      cout<<"bbox_idx="<<bbox_idx<<endl;
-      */
 
-      uint32_t class_idx = attr * kCategoryIndex;
-      /*
-      cout<<"ind="<<ind<<endl;
-      cout<<"class_idx="<<class_idx<<endl;
-      cout<<"bbox_idx="<<bbox_idx<<endl;
-      */
-
+     uint32_t class_idx = attr * kCategoryIndex;
      uint32_t lt_x = tensor_bbox(ind,class_idx, bbox_idx, BBoxIndex::kTopLeftX);
      uint32_t lt_y = tensor_bbox(ind,class_idx, bbox_idx, BBoxIndex::kTopLeftY);
      uint32_t rb_x = tensor_bbox(ind,class_idx, bbox_idx, BBoxIndex::kLowerRigltX);
      uint32_t rb_y = tensor_bbox(ind,class_idx, bbox_idx, BBoxIndex::kLowerRightY);
      float score = tensor_bbox(ind,class_idx, bbox_idx, BBoxIndex::kScore);
      bboxes.push_back( {lt_x, lt_y, rb_x, rb_y, attr, score});
-
-        /*
-     cout<<"lt_x="<<lt_x<<endl;
-     cout<<"lt_y="<<lt_y<<endl;
-     cout<<"rb_x="<<rb_x<<endl;
-     cout<<"rb_y="<<rb_y<<endl;
-     */
 
       }
   }
@@ -234,12 +176,11 @@ HIAI_StatusT GeneralPost::HandleResults( const std::shared_ptr<EngineTransT>& in
     ERROR_LOG("Fialed to deal file=%s. Reason: read image failed.", inference_res->imgs[ind].image_info.path.c_str());
     continue;
   }
+
+//原图和resize后的图片之间的比例，需要根据这个比例调整矩形框的大小。
   float scale_width = (float)mat.cols / inference_res->imgs[ind].image_info.image_data.width;
-  cout<<"image_info.image_data.width="<<inference_res->imgs[ind].image_info.image_data.width<<endl;
   float scale_height = (float)mat.rows / inference_res->imgs[ind].image_info.image_data.height;
-  cout<<"image_info.image_data.height="<< inference_res->imgs[ind].image_info.image_data.height<<endl;
-
-
+  
   stringstream sstream;
   for (int i = 0; i < bboxes.size(); ++i)
    {
@@ -249,11 +190,6 @@ HIAI_StatusT GeneralPost::HandleResults( const std::shared_ptr<EngineTransT>& in
     p2.x = scale_width * bboxes[i].rb_x;
     p2.y = scale_height * bboxes[i].rb_y;
     cv::rectangle(mat, p1, p2, kColors[i % kColors.size()], kLineSolid);
-
-    //cout<<"p1.x="<<p1.x<<endl;
-    //cout<<"p1.y="<<p1.y<<endl;
-    //cout<<"p2.x="<<p2.x<<endl;
-    //cout<<"p2.y="<<p2.y<<endl;
 
     sstream.str("");
     sstream << bboxes[i].attribute << " ";
@@ -276,7 +212,6 @@ HIAI_StatusT GeneralPost::HandleResults( const std::shared_ptr<EngineTransT>& in
     continue;
 
     }
-
 
 }
 

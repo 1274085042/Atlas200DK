@@ -83,27 +83,23 @@ class Tensor {
 
     T& operator()(uint32_t b,uint32_t i, ...)
      {
-     //cout<<"<<<<<<<<<<<<<operator()>>>>>>>>>>>>"<<endl;
-     //cout<<"b="<<b<<endl;
       va_list arg_ptr;
       va_start(arg_ptr, i);
       uint32_t offset=1;
 
-      //cout<<"dims_size="<<dims_.size()<<endl;
-
       for (uint32_t j=1;j<dims_.size();j++)
       {
-        offset*=dims_[j];
+        offset*=dims_[j];       //offset：代表一张图片所占的大小
       }
-        //cout<<"offset="<<offset<<endl;
+
       uint32_t index = i;
-      for (uint32_t idx = 2; idx < dims_.size();++idx){
+      for (uint32_t idx = 2; idx < dims_.size();++idx)
+      {
         index *= dims_[idx];
         index += va_arg(arg_ptr, uint32_t);
       }
-      //cout<<"index="<<index<<endl;
+
       index=index+offset*b;
-      //cout<<"index+offset*b="<<index<<endl;
       va_end(arg_ptr);
       return data_[index];
     }

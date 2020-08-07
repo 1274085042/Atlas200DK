@@ -81,6 +81,8 @@ bool GeneralImage::IsDirectory(const string &path)
 
 bool GeneralImage::IsPathExist(const string &path) 
 {
+  //判断路径是否存在
+  //file 文件句柄
   ifstream file(path);
   if (!file) {
     return false;
@@ -90,8 +92,9 @@ bool GeneralImage::IsPathExist(const string &path)
 
 void GeneralImage::SplitPath(const string &path, vector<string> &path_vec) 
 {
-  char *char_path = const_cast<char*>(path.c_str());
+  char *char_path = const_cast<char*>(path.c_str());     //string.c_str()返回一个指针(char *)
   const char *char_split = kImagePathSeparator.c_str();
+  //strtok()分割字符串
   char *tmp_path = strtok(char_path, char_split);
   while (tmp_path)
   {
@@ -220,6 +223,7 @@ HIAI_IMPL_ENGINE_PROCESS("general_image", GeneralImage, INPUT_SIZE)
         return HIAI_ERROR;
     }
 
+    //images_batch_handle存放一个batch图片
     shared_ptr<CusBatchImagePara> images_batch_handle = nullptr;
     MAKE_SHARED_NO_THROW(images_batch_handle, CusBatchImagePara);
 
@@ -251,18 +255,6 @@ HIAI_IMPL_ENGINE_PROCESS("general_image", GeneralImage, INPUT_SIZE)
 
         images_batch_handle->v_img.push_back(img_data);
     }
-
-
-     for (uint32_t i=0;i<images_batch_handle->b_info.batch_size;i++)
-       {
-           //cout << images_batch_handle->v_img[i].image_info.path << endl;
-           cout <<"height="<<images_batch_handle->v_img[i].image_info.image_data.height << endl;
-           cout << "width="<<images_batch_handle->v_img[i].image_info.image_data.width << endl;
-           //cout << images_batch_handle->v_img[i].image_info.image_data.size << endl;
-           //cout << images_batch_handle->v_img[i].image_info.image_data.data << endl;
-           cout << endl;
-       }
-
 
     if (!SendToEngine(images_batch_handle))
     {
